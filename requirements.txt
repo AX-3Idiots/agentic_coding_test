@@ -4,3 +4,10 @@ bcrypt==4.1.2
 PyJWT==2.8.0
 python-multipart==0.0.6
 pydantic==2.5.0
+apscheduler==3.10.4
+plyer==2.1.0
+pydub==0.25.1
+aiofiles==23.2.1
+psutil==5.9.6
+pytest==7.4.3
+httpx==0.25.2
