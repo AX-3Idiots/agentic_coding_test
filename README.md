@@ -1,164 +1,172 @@
-# Counter Application
+# Counter Application with Data Persistence
 
-A React-based counter application with comprehensive state management, session tracking, and immediate UI updates. This application implements core counter logic with validation, limits, and proper user feedback.
+A comprehensive counter application implementing robust data persistence and storage management features.
 
 ## Features
 
-### Core Counter Logic
-- **State Management**: Maintains current value and timestamp for all operations
-- **Increment Operation**: Adds 1 to counter with maximum limit of 999,999
-- **Decrement Operation**: Subtracts 1 from counter with minimum limit of -999,999
-- **Reset Operation**: Sets counter to 0 regardless of current value
-- **Immediate UI Updates**: All operations complete within 100ms with instant feedback
+### 🔄 Auto-Save & Auto-Restore
+- **Automatic saving**: Counter value saves automatically on each change
+- **Timestamp tracking**: Every save includes timestamp information
+- **Debounced writes**: Prevents excessive storage operations (300ms debounce)
+- **Performance optimized**: Save operations complete within 50ms
+- **Auto-restore**: Counter value loads automatically on application start
+- **Graceful defaults**: Defaults to 0 if no saved value exists
 
-### Session Tracking
-- **Unique Session ID**: Generated on application start
-- **Last Accessed Tracking**: Updates on counter operations
-- **Session Persistence**: Maintains session data throughout user interactions
+### 📊 Session Management
+- **Session persistence**: Session data persists across app launches
+- **Usage statistics**: Tracks increments, decrements, resets, and total operations
+- **Automatic cleanup**: Old session data is cleaned up periodically
+- **Timestamp tracking**: Records session start time and last activity
 
-### User Interface
-- **Responsive Design**: Works on desktop and mobile devices
-- **Button State Management**: Buttons disabled at limits with visual feedback
-- **Number Formatting**: Large numbers displayed with proper thousands separators
-- **Visual Feedback**: Limit notifications and smooth animations
-- **Accessibility**: Proper ARIA labels and keyboard navigation
+### 🚫 Offline Support
+- **Works offline**: All counter operations work without internet connection
+- **Data validation**: Validates data when loading from local storage
+- **Corruption recovery**: Handles damaged data gracefully
+- **Error handling**: Storage errors are handled with user notifications
+- **Schema migration**: Supports data migration between versions
 
-## Project Structure
+### 💾 Backup & Restore
+- **Export functionality**: Export counter data to downloadable JSON file
+- **Import functionality**: Import counter data from uploaded JSON file
+- **Data validation**: Ensures imported data is valid before applying
+- **User confirmation**: Requires confirmation before overwriting existing data
+- **Clear error messages**: Provides helpful error messages for invalid files
 
-```
-src/
-├── components/          # React components
-│   ├── Counter.js      # Main counter component
-│   ├── Counter.css     # Component styles
-│   └── Counter.test.js # Component tests
-├── hooks/              # Custom React hooks
-│   ├── useCounter.js   # Counter state management
-│   ├── useCounter.test.js
-│   ├── useSession.js   # Session tracking
-│   └── useSession.test.js
-├── utils/              # Utility functions
-│   ├── sessionUtils.js # Session utilities
-│   └── sessionUtils.test.js
-├── types/              # Type definitions and constants
-│   └── index.js        # Domain models and limits
-├── App.js              # Main application component
-├── App.css             # Application styles
-├── index.js            # Application entry point
-├── index.css           # Global styles
-└── setupTests.js       # Test configuration
-```
+## Technology Stack
 
-## Implementation Details
+### Backend (FastAPI)
+- **FastAPI**: Modern, fast web framework for Python
+- **Pydantic**: Data validation and serialization
+- **Atomic file operations**: Prevents data corruption during saves
+- **JSON storage**: Simple, human-readable data format
+- **Performance monitoring**: Tracks operation timing
 
-### Counter State Management
-The counter uses a custom `useCounter` hook that:
-- Maintains current value and timestamp in state
-- Implements validation for min/max limits (-999,999 to 999,999)
-- Provides operations (increment, decrement, reset) with success/failure feedback
-- Updates timestamps automatically on each operation
-- Ensures operations complete within 100ms
-
-### Session Tracking
-The session tracking uses a custom `useSession` hook that:
-- Generates unique session IDs using timestamp and random components
-- Tracks last accessed time
-- Updates session data on counter operations
-- Follows domain model specifications
-
-### UI Components
-The main Counter component:
-- Displays counter value with proper number formatting
-- Manages button states based on counter limits
-- Shows visual feedback when limits are reached
-- Updates immediately without visible delay
-- Provides accessibility features with proper titles and ARIA labels
-
-## Domain Model
-
-### Counter State
-```javascript
-{
-  current_value: number,    // Current counter value
-  timestamp: string         // ISO timestamp of last modification
-}
-```
-
-### Session State
-```javascript
-{
-  session_id: string,       // Unique session identifier
-  last_accessed: string     // ISO timestamp of last access
-}
-```
-
-## Constants
-- **Maximum Value**: 999,999
-- **Minimum Value**: -999,999
-- **Operation Timeout**: 100ms
-
-## Testing
-
-The application includes comprehensive unit tests for:
-- Counter state management and operations
-- Session tracking functionality
-- UI component behavior and rendering
-- Button state management and accessibility
-- Number formatting and visual feedback
-- Utility functions and edge cases
-
-Test coverage includes:
-- Initial state validation
-- Operation success/failure scenarios
-- Limit boundary testing
-- Performance validation (100ms timeout)
-- Session data structure compliance
-- UI update responsiveness
+### Frontend (React + TypeScript)
+- **React 18**: Modern React with concurrent features
+- **TypeScript**: Type-safe development
+- **Local Storage**: Browser-based caching and offline support
+- **Performance tracking**: Monitors operation performance
+- **Responsive design**: Works on desktop and mobile devices
 
 ## Getting Started
 
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
+### Prerequisites
+- Python 3.8+ (for backend)
+- Node.js 16+ (for frontend)
 
-2. Run the application:
-   ```bash
-   npm start
-   ```
+### Backend Setup
+```bash
+cd backend
+pip install -r requirements.txt
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
 
-3. Run tests:
-   ```bash
-   npm test
-   ```
+### Frontend Setup
+```bash
+cd frontend
+npm install
+npm start
+```
 
-4. Build for production:
-   ```bash
-   npm run build
-   ```
+The application will be available at:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000
+- API Documentation: http://localhost:8000/docs
 
-## Technical Requirements Met
+## API Endpoints
 
-✅ Counter state holds current_value and timestamp  
-✅ Timestamp updates automatically on each operation  
-✅ Counter value persists between operations  
-✅ State structure matches domain model requirements  
-✅ Increment operation adds exactly 1 to current value  
-✅ Counter cannot exceed maximum value of 999,999  
-✅ Increment button becomes disabled when maximum value is reached  
-✅ Operation completes within 100ms  
-✅ Visual feedback provided when limit is reached  
-✅ Decrement operation subtracts exactly 1 from current value  
-✅ Counter cannot go below minimum value of -999,999  
-✅ Decrement button becomes disabled when minimum value is reached  
-✅ Reset operation sets counter value to exactly 0  
-✅ Reset works regardless of current counter value  
-✅ Both increment and decrement buttons become enabled after reset  
-✅ Timestamp updates to current time on reset  
-✅ Counter value displays immediately on state change  
-✅ No visible delay between button press and display update  
-✅ Proper number formatting for large positive and negative values  
-✅ Display updates are smooth and without flickering  
-✅ Unique session_id generated on application start  
-✅ Last_accessed timestamp tracked and updated  
-✅ Session data updates on counter operations  
-✅ Session data structure matches domain model specifications
+### Counter Operations
+- `GET /api/counter` - Get current counter value
+- `POST /api/counter/increment` - Increment counter
+- `POST /api/counter/decrement` - Decrement counter
+- `POST /api/counter/reset` - Reset counter to 0
+
+### Session Management
+- `GET /api/session` - Get current session data
+- `POST /api/session/start` - Start new session
+
+### Backup Operations
+- `GET /api/backup/export` - Export data as JSON
+- `POST /api/backup/import` - Import data from JSON
+
+### Monitoring
+- `GET /api/health` - Health check endpoint
+
+## Data Storage
+
+### Backend Storage
+- **Location**: `backend/data/` directory
+- **Format**: JSON files for human readability
+- **Files**:
+  - `counter.json`: Counter value, timestamp, and version
+  - `session.json`: Session statistics and metadata
+
+### Frontend Storage
+- **Location**: Browser localStorage
+- **Caching**: Automatic caching for offline support
+- **Expiration**: 24-hour cache expiration for counter data
+- **Migration**: Automatic schema migration between versions
+
+## Testing
+
+### Backend Tests
+```bash
+cd backend
+pytest tests/ -v
+```
+
+### Frontend Tests
+```bash
+cd frontend
+npm test
+```
+
+## Performance Characteristics
+
+- **Save operations**: Complete within 50ms
+- **Debounced writes**: 300ms debounce prevents excessive operations
+- **Memory usage**: Minimal memory footprint
+- **Storage efficiency**: Compact JSON format
+- **Network optimization**: Efficient API calls with error handling
+
+## Error Handling
+
+- **Network errors**: Graceful fallback to local storage
+- **Data corruption**: Automatic recovery with default values
+- **Invalid input**: Comprehensive validation with user feedback
+- **Storage failures**: Non-blocking error handling
+- **Import errors**: Clear error messages for invalid backup files
+
+## Browser Compatibility
+
+- **Modern browsers**: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
+- **Mobile support**: iOS Safari, Chrome Mobile
+- **Offline support**: Service worker for offline functionality
+- **Local storage**: 5MB+ storage capacity recommended
+
+## Architecture
+
+### Data Flow
+1. **User action** → Counter component
+2. **Debounced save** → Local storage (immediate)
+3. **API call** → Backend service (if online)
+4. **Response** → Update UI with confirmation
+
+### Error Recovery
+1. **Network failure** → Continue with local storage
+2. **Data corruption** → Reset to default values
+3. **Storage full** → Clean up expired cache data
+4. **Import error** → Validate and show specific error messages
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License.
