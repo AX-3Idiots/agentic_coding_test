@@ -1,111 +1,100 @@
 # Shopping Site Frontend - Development Guide
 
 ## Project Overview
-
-This is a React-based e-commerce frontend application built with TypeScript, Vite, and Material-UI. The architecture follows modern React patterns and is designed for scalability and maintainability.
+This is a React-based shopping site application similar to Amazon, focusing on product search, listing, and detail views. The project is scaffolded with Vite, TypeScript, and Material-UI for a modern development experience.
 
 ## Architecture Decisions
 
 ### Why This Component Structure?
+Based on the provided specifications, I have created a scalable architecture that separates concerns and promotes reusability:
 
-**Feature-Based Organization**: The project uses a feature-based directory structure rather than a traditional component-type structure. This approach provides several benefits:
+#### **Core Components Created:**
+1. **Product Search & List Page (/)** - Main landing page with search functionality
+2. **Product Detail Page (/products/:id)** - Individual product detail views  
+3. **Product Card Component** - Reusable product display component
+4. **Search Bar Component** - Centralized search functionality
 
-- **Scalability**: Each feature (products, cart, auth, account) is self-contained with its own components, hooks, and services
-- **Maintainability**: Related code is co-located, making it easier to understand and modify features
-- **Team Collaboration**: Different developers can work on different features with minimal conflicts
-- **Code Reusability**: Common components are separated into `components/common` and `components/ui` for reuse across features
+#### **Directory Structure Rationale:**
 
-### What Components Were Created?
+**`src/components/`** - Houses reusable UI components
+- `common/` - Shared components used across features (SearchBar, ProductCard)
+- `ui/` - Basic UI building blocks and styled components
 
-**Core Features Structure**:
-- `features/products/`: Product search, listing, and detail components
-- `features/cart/`: Shopping cart management components  
-- `features/auth/`: Authentication and login components
-- `features/account/`: User profile and account management
-- `components/common/`: Shared business components (SearchBar, ProductCard, etc.)
-- `components/ui/`: Pure UI components (Button, Modal, etc.)
+**`src/features/`** - Feature-specific modules following domain-driven design
+- `products/` - All product-related components, hooks, and services
 
-**Supporting Infrastructure**:
-- `hooks/`: Custom React hooks for shared logic
-- `services/`: API clients and external service integrations
-- `store/`: State management configuration
-- `utils/`: Utility functions and helpers
-- `styles/`: Global styles and theme configuration
+**`src/hooks/`** - Custom React hooks for shared logic
+- Will contain hooks like `useProductSearch`, `useProductDetail`
 
-### Technology Choices
+**`src/services/`** - API clients and external service integrations
+- Product API calls, search services, etc.
 
-**Material-UI (MUI)**: Chosen for consistent, professional UI components that provide:
-- Accessibility out of the box
-- Consistent design system
-- Comprehensive component library
-- Built-in theming support
-- Mobile-responsive design
+**`src/store/`** - State management (Redux Toolkit recommended)
+- Global state for search filters, cart, user preferences
 
-**React Router**: For client-side routing between pages
-**TypeScript**: For type safety and better developer experience
-**Vite**: For fast development and optimized builds
+**`src/utils/`** - Utility functions and helpers
+- Price formatting, image optimization, validation helpers
+
+### Why Material-UI (MUI)?
+- **Consistency**: Provides a cohesive design system out of the box
+- **Accessibility**: Built-in ARIA support and keyboard navigation
+- **Responsive**: Mobile-first responsive components
+- **Theming**: Easy dark/light mode switching and brand customization
+- **Performance**: Tree-shaking support for optimal bundle size
+
+### Why This Tech Stack?
+- **Vite**: Fast development server and optimized builds
+- **TypeScript**: Type safety and better developer experience
+- **React Router**: Client-side routing for SPA navigation
+- **Emotion**: CSS-in-JS solution that works seamlessly with MUI
 
 ## Development Guidelines
 
 ### Component Development
-- Use functional components with hooks exclusively
-- Keep components small and focused on single responsibilities
-- Use TypeScript interfaces for all props and data structures
-- Implement proper error boundaries for robust error handling
+1. **Functional Components Only**: Use hooks instead of class components
+2. **TypeScript First**: Define proper interfaces for all props and state
+3. **MUI Components**: Use Material-UI components for consistent styling
+4. **Responsive Design**: Ensure all components work on mobile and desktop
 
-### State Management
-- Start with local state using useState
-- Lift state up when multiple components need access
-- Consider global state management (Redux Toolkit) for complex application state
-- Use custom hooks to encapsulate and share stateful logic
+### State Management Strategy
+- **Local State**: Use `useState` for component-specific state
+- **Shared State**: Use Context API or Redux Toolkit for cross-component state
+- **Server State**: Consider React Query for API data management
 
-### API Integration
-- Centralize API calls in the `services/` directory
-- Use proper error handling for network requests
-- Implement loading states for better user experience
-- Cache frequently accessed data appropriately
+### File Naming Conventions
+- Components: `PascalCase.tsx` (e.g., `ProductCard.tsx`)
+- Hooks: `camelCase.ts` starting with "use" (e.g., `useProductSearch.ts`)
+- Services: `camelCase.ts` (e.g., `productApi.ts`)
+- Types: `PascalCase.ts` with `.types.ts` suffix (e.g., `Product.types.ts`)
 
-### Styling Approach
-- Use Material-UI components as the foundation
-- Customize theme in `styles/` directory for brand consistency
-- Use sx prop for component-specific styling
-- Maintain responsive design principles
+### Performance Considerations
+- Use `React.memo()` for expensive components
+- Implement `useCallback` and `useMemo` for optimization
+- Lazy load routes and heavy components
+- Optimize images and implement proper loading states
 
 ### Testing Strategy
-- Write unit tests for individual components
-- Test custom hooks in isolation
-- Implement integration tests for feature workflows
-- Use React Testing Library for component testing
+- Unit tests for utility functions and hooks
+- Component tests using React Testing Library
+- Integration tests for user flows
+- E2E tests for critical paths (search → detail → cart)
 
 ## Next Steps for Development
+1. Implement the SearchBar component with autocomplete
+2. Create the ProductCard component with proper image handling
+3. Build the product list page with filtering and sorting
+4. Develop the product detail page with image carousel
+5. Add routing between list and detail views
+6. Implement responsive grid layouts
+7. Add loading states and error handling
+8. Integrate with backend APIs
 
-1. **Product Features**: Implement SearchBar, ProductGrid, ProductCard components
-2. **Product Details**: Create ProductImageGallery, ProductInfo, ReviewsSection
-3. **Shopping Cart**: Build CartItemList, CartSummary, CheckoutButton
-4. **User Management**: Develop LoginForm, UserProfile, OrderHistory
-5. **API Integration**: Connect components to backend services
-6. **State Management**: Implement global state for cart and user data
-7. **Testing**: Add comprehensive test coverage
-8. **Performance**: Optimize with lazy loading and code splitting
+## API Integration Points
+- Product search endpoint
+- Product detail endpoint  
+- Category and filter endpoints
+- Image CDN integration
+- Review and rating endpoints
 
-## File Structure Reference
+This architecture provides a solid foundation for building a scalable e-commerce frontend that can grow with additional features like cart management, user authentication, and checkout flows.
 
-```
-src/
-├── components/
-│   ├── common/          # Shared business components
-│   └── ui/              # Pure UI components
-├── features/
-│   ├── products/        # Product search, listing, details
-│   ├── cart/           # Shopping cart functionality
-│   ├── auth/           # Authentication
-│   └── account/        # User account management
-├── hooks/              # Custom React hooks
-├── services/           # API clients
-├── store/              # State management
-├── styles/             # Global styles and themes
-├── utils/              # Utility functions
-└── pages/              # Page-level components
-```
-
-This architecture provides a solid foundation for building a scalable e-commerce application while maintaining code quality and developer productivity.

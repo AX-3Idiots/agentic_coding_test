@@ -1,14 +1,12 @@
 # Shopping Site Frontend
 
-A modern React-based e-commerce application built with TypeScript, Vite, and Material-UI.
+A modern React-based shopping site application built with Vite, TypeScript, and Material-UI.
 
 ## Features
-
 - Product search and listing
 - Product detail views
-- Shopping cart management
-- User authentication and account management
-- Responsive design with Material-UI
+- Responsive design
+- Dark theme support
 
 ## Getting Started
 
@@ -17,16 +15,23 @@ npm install
 npm run dev
 ```
 
-## Architecture
-
-This project follows a feature-based architecture for better scalability and maintainability. See `CLAUDE.md` for detailed development guidelines.
-
 ## Tech Stack
-
 - React 18
 - TypeScript
 - Vite
 - Material-UI (MUI)
 - React Router
 - Emotion (CSS-in-JS)
+
+## Project Structure
+```
+src/
+├── components/     # Reusable components
+├── features/       # Feature-specific modules  
+├── hooks/          # Custom hooks
+├── services/       # API clients
+├── store/          # State management
+├── styles/         # Global styles
+└── utils/          # Utility functions
+```
 
