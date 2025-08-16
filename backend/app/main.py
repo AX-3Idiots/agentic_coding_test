@@ -4,7 +4,7 @@ Main FastAPI application for Counter with Data Persistence
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 import json
 import os
 import asyncio
@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 import time
 from pathlib import Path
 
-app = FastAPI(title="Counter Data Persistence API", version="1.0.0")
+app = FastAPI(title="Product Catalog API", version="1.0.0")
 
 # Configure CORS for frontend
 app.add_middleware(
@@ -59,6 +59,34 @@ class BackupData(BaseModel):
     session: SessionData
     export_timestamp: datetime
     version: int = 1
+
+# Product Models
+class Product(BaseModel):
+    id: int
+    name: str
+    description: str
+    price: float = Field(ge=0)
+    category: str
+    brand: str
+    in_stock: bool = True
+    stock_quantity: int = Field(ge=0)
+    image_url: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class ProductListResponse(BaseModel):
+    success: bool
+    products: List[Product]
+    total: int
+    page: int
+    per_page: int
+    total_pages: int
+    message: str = ""
+
+class ProductResponse(BaseModel):
+    success: bool
+    product: Optional[Product] = None
+    message: str = ""
 
 # Storage utilities
 class StorageManager:
@@ -170,6 +198,112 @@ class StorageManager:
 
 # Global storage manager
 storage = StorageManager()
+
+# Sample product data - in a real app, this would be in a database
+SAMPLE_PRODUCTS = [
+    Product(
+        id=1,
+        name="Wireless Bluetooth Headphones",
+        description="High-quality wireless headphones with noise cancellation and 30-hour battery life.",
+        price=99.99,
+        category="Electronics",
+        brand="AudioTech",
+        stock_quantity=25,
+        image_url="https://via.placeholder.com/300x300/007ACC/FFFFFF?text=Headphones"
+    ),
+    Product(
+        id=2,
+        name="Smartphone Case",
+        description="Durable protective case for smartphones with wireless charging compatibility.",
+        price=24.99,
+        category="Accessories",
+        brand="ProtectGear",
+        stock_quantity=50,
+        image_url="https://via.placeholder.com/300x300/28A745/FFFFFF?text=Phone+Case"
+    ),
+    Product(
+        id=3,
+        name="Wireless Charging Pad",
+        description="Fast wireless charging pad compatible with all Qi-enabled devices.",
+        price=39.99,
+        category="Electronics",
+        brand="ChargeFast",
+        stock_quantity=15,
+        image_url="https://via.placeholder.com/300x300/FFC107/000000?text=Charger"
+    ),
+    Product(
+        id=4,
+        name="Bluetooth Speaker",
+        description="Portable Bluetooth speaker with 360-degree sound and waterproof design.",
+        price=79.99,
+        category="Electronics",
+        brand="SoundWave",
+        stock_quantity=8,
+        in_stock=True,
+        image_url="https://via.placeholder.com/300x300/DC3545/FFFFFF?text=Speaker"
+    ),
+    Product(
+        id=5,
+        name="Laptop Stand",
+        description="Adjustable aluminum laptop stand for improved ergonomics and cooling.",
+        price=45.99,
+        category="Accessories",
+        brand="ErgoDesk",
+        stock_quantity=20,
+        image_url="https://via.placeholder.com/300x300/6C757D/FFFFFF?text=Laptop+Stand"
+    ),
+    Product(
+        id=6,
+        name="USB-C Hub",
+        description="Multi-port USB-C hub with HDMI, USB 3.0, and SD card reader.",
+        price=34.99,
+        category="Electronics",
+        brand="ConnectAll",
+        stock_quantity=0,
+        in_stock=False,
+        image_url="https://via.placeholder.com/300x300/17A2B8/FFFFFF?text=USB+Hub"
+    ),
+    Product(
+        id=7,
+        name="Mechanical Keyboard",
+        description="RGB mechanical gaming keyboard with tactile switches and programmable keys.",
+        price=129.99,
+        category="Electronics",
+        brand="GameType",
+        stock_quantity=12,
+        image_url="https://via.placeholder.com/300x300/6F42C1/FFFFFF?text=Keyboard"
+    ),
+    Product(
+        id=8,
+        name="Wireless Mouse",
+        description="Ergonomic wireless mouse with precision tracking and long battery life.",
+        price=29.99,
+        category="Electronics",
+        brand="ClickMaster",
+        stock_quantity=30,
+        image_url="https://via.placeholder.com/300x300/E83E8C/FFFFFF?text=Mouse"
+    ),
+    Product(
+        id=9,
+        name="Monitor Stand",
+        description="Adjustable monitor stand with storage space and cable management.",
+        price=59.99,
+        category="Accessories",
+        brand="ViewPerfect",
+        stock_quantity=10,
+        image_url="https://via.placeholder.com/300x300/20C997/FFFFFF?text=Monitor+Stand"
+    ),
+    Product(
+        id=10,
+        name="Webcam HD",
+        description="1080p HD webcam with auto-focus and built-in microphone for video calls.",
+        price=49.99,
+        category="Electronics",
+        brand="StreamClear",
+        stock_quantity=18,
+        image_url="https://via.placeholder.com/300x300/FD7E14/FFFFFF?text=Webcam"
+    ),
+]
 
 # API Endpoints
 @app.get("/api/counter", response_model=CounterResponse)
@@ -403,6 +537,98 @@ async def import_backup(backup_json: str):
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Import failed: {str(e)}")
+
+# Product API Endpoints
+@app.get("/api/products", response_model=ProductListResponse)
+async def get_products(
+    q: Optional[str] = None,  # search query
+    category: Optional[str] = None,  # filter by category
+    brand: Optional[str] = None,  # filter by brand
+    in_stock: Optional[bool] = None,  # filter by stock availability
+    min_price: Optional[float] = None,  # price range filter
+    max_price: Optional[float] = None,  # price range filter
+    page: int = 1,  # page number (1-based)
+    per_page: int = 10  # items per page
+):
+    """Get products with search, filtering, and pagination"""
+    try:
+        # Start with all products
+        filtered_products = SAMPLE_PRODUCTS.copy()
+        
+        # Apply search filter
+        if q:
+            q_lower = q.lower()
+            filtered_products = [
+                p for p in filtered_products 
+                if q_lower in p.name.lower() or q_lower in p.description.lower()
+            ]
+        
+        # Apply category filter
+        if category:
+            filtered_products = [p for p in filtered_products if p.category.lower() == category.lower()]
+        
+        # Apply brand filter
+        if brand:
+            filtered_products = [p for p in filtered_products if p.brand.lower() == brand.lower()]
+        
+        # Apply stock filter
+        if in_stock is not None:
+            filtered_products = [p for p in filtered_products if p.in_stock == in_stock]
+        
+        # Apply price filters
+        if min_price is not None:
+            filtered_products = [p for p in filtered_products if p.price >= min_price]
+        
+        if max_price is not None:
+            filtered_products = [p for p in filtered_products if p.price <= max_price]
+        
+        # Calculate pagination
+        total = len(filtered_products)
+        total_pages = (total + per_page - 1) // per_page  # Ceiling division
+        
+        # Validate page number
+        if page < 1:
+            page = 1
+        if page > total_pages and total_pages > 0:
+            page = total_pages
+        
+        # Apply pagination
+        start_idx = (page - 1) * per_page
+        end_idx = start_idx + per_page
+        paginated_products = filtered_products[start_idx:end_idx]
+        
+        return ProductListResponse(
+            success=True,
+            products=paginated_products,
+            total=total,
+            page=page,
+            per_page=per_page,
+            total_pages=total_pages,
+            message=f"Found {total} products"
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching products: {str(e)}")
+
+@app.get("/api/products/{product_id}", response_model=ProductResponse)
+async def get_product(product_id: int):
+    """Get a single product by ID"""
+    try:
+        product = next((p for p in SAMPLE_PRODUCTS if p.id == product_id), None)
+        
+        if not product:
+            raise HTTPException(status_code=404, detail=f"Product with ID {product_id} not found")
+        
+        return ProductResponse(
+            success=True,
+            product=product,
+            message="Product retrieved successfully"
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching product: {str(e)}")
 
 @app.get("/api/health")
 async def health_check():
